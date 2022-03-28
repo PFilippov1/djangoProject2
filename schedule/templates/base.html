@@ -6,25 +6,25 @@
         content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet"
 href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-    <title>Schedule</title>
+    <title>Списки заданий</title>
 </head>
 <body>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-8">
-            <h1 class="mt-2">Schedule</h1>
+            <h1 class="mt-2">Списки основных задач до июля</h1>
             {% if user.is_authenticated %}
                 <p class="text-right">
-                    Hello, {{ user.username }}!
-                    <a href="/schedule/logout">Log out</a> |
+                    Привет, {{ user.username }}!
+                    <a href="/schedule/logout">Выйти</a> |
                     <a href="/schedule/password-change">
-                        Change password
+                        Изменить пароль
                     </a>
                 </p>
             {% else %}
                 <p class="text-right">
-                    <a href="/schedule/login">Log in</a> |
-                    <a href="/schedule/register">Register</a>
+                    <a href="/schedule/login">Войти</a> |
+                    <a href="/schedule/register">Зарегистрироваться</a>
                 </p>
             {% endif %}
             <hr class="mt-0 mb-4">

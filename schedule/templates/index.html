@@ -1,33 +1,7 @@
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <title>Title</title>#}
-{#</head>#}
-{#<body>#}
-{#<h1>Available Schedule</h1>#}
-{#{% if message %}#}
-{#    <p><strong>{{ message }}</strong></p>#}
-{#{% endif %}#}
-{#{% if latest_schedule %}#}
-{#    <ul>#}
-{#        {% for schedule in latest_schedule %}#}
-{#            <li>#}
-{#                <a href="/schedule/{{ schedule.id }}/">#}
-{#                    {{ schedule.schedule_text }}#}
-{#                </a>#}
-{#            </li>#}
-{#        {% endfor %}#}
-{#    </ul>#}
-{#{% else %}#}
-{#    <p>No schedule are available right now.</p>#}
-{#{% endif %}#}
-{#</body>#}
-{#</html>#}
 
 {% extends 'base.html' %}
 {% block main %}
-    <h4 class="card-title">Available Schedule</h4>
+    <h4 class="card-title">Списки задач</h4>
     {% if message %}
         <p class="alert alert-success">
             <strong>{{ message }}</strong>
@@ -44,7 +18,7 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>No schedule are available right now.</p>
+        <p>На данный момент нет списка.</p>
     {% endif %}
 {% endblock %}
 
