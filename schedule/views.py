@@ -1,5 +1,7 @@
 from django.contrib.auth.views import PasswordChangeView
 from django.shortcuts import get_object_or_404, render, redirect
+from django.http import JsonResponse
+import json
 
 from .models import Schedule, Option
 
@@ -22,17 +24,37 @@ def index(request):
     )
 
 
-# страница загадки со списком ответов
+# # страница загадки со списком ответов
+# def detail(request, schedule_id):
+#     error_message = None
+#     if "error_message" in request.GET:
+#         error_message = request.GET["error_message"]
+#     return render(
+#         request,
+#         "answer.html",
+#         {
+#             "schedule": get_object_or_404(Schedule, pk=schedule_id),
+#             "error_message": error_message
+#         }
+#     )
+
+
 def detail(request, schedule_id):
     error_message = None
     if "error_message" in request.GET:
         error_message = request.GET["error_message"]
+
     return render(
         request,
         "answer.html",
         {
-            "schedule": get_object_or_404(Schedule, pk=schedule_id),
-            "error_message": error_message
+            "riddle": get_object_or_404(
+                Schedule, pk=schedule_id),
+            "error_message": error_message,
+            "latest_messages":
+                Message.objects
+                    .filter(chat_id=schedule_id)
+                    .order_by('-pub_date')[:5]
         }
     )
 
@@ -71,6 +93,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 # часто нужен при указании путей переадресации
 app_url = "/schedule/"
 
+
 # наше представление для регистрации
 class RegisterFormView(FormView):
     # будем строить на основе
@@ -84,6 +107,7 @@ class RegisterFormView(FormView):
     # Шаблон, который будет использоваться
     # при отображении представления.
     template_name = "reg/register.html"
+
     def form_valid(self, form):
         # Создаём пользователя,
         # если данные в форму были введены корректно.
@@ -91,13 +115,17 @@ class RegisterFormView(FormView):
         # Вызываем метод базового класса
         return super(RegisterFormView, self).form_valid(form)
 
+
 # Спасибо django за готовую форму аутентификации.
 from django.contrib.auth.forms import AuthenticationForm
 # Функция для установки сессионного ключа.
 # По нему django будет определять,
 # выполнил ли вход пользователь.
 from django.contrib.auth import login
+
 ...
+
+
 # наше представление для входа
 class LoginFormView(FormView):
     # будем строить на основе
@@ -108,6 +136,7 @@ class LoginFormView(FormView):
     template_name = "reg/login.html"
     # В случае успеха перенаправим на главную.
     success_url = app_url
+
     def form_valid(self, form):
         # Получаем объект пользователя
         # на основе введённых в форму данных.
@@ -121,6 +150,7 @@ class LoginFormView(FormView):
 from django.http import HttpResponseRedirect
 from django.views.generic.base import View
 from django.contrib.auth import logout
+
 
 # для выхода - миниатюрное представление без шаблона -
 # после выхода перенаправим на главную
@@ -155,4 +185,40 @@ class LogoutView(View):
             form.save()
             return super(PasswordChangeView, self).form_valid(form)
 
+
+from .models import Message
+from datetime import datetime
+
+
+def post(request, schedule_id):
+    msg = Message()
+    msg.author = request.user
+    msg.chat = get_object_or_404(Schedule, pk=schedule_id)
+    msg.message = request.POST['message']
+    msg.pub_date = datetime.now()
+    msg.save()
+    return HttpResponseRedirect(app_url + str(schedule_id))
+
+
+def msg_list(request, schedule_id):
+    # выбираем список сообщений
+    res = list(
+        Message.objects
+            # фильтруем по id загадки
+            .filter(chat_id=schedule_id)
+            # отбираем 5 самых свежих
+            .order_by('-pub_date')[:5]
+            # выбираем необходимые поля
+            .values('author__username',
+                    'pub_date',
+                    'message'
+                    )
+    )
+    # конвертируем даты в строки - сами они не умеют
+    for r in res:
+        r['pub_date'] = \
+            r['pub_date'].strftime(
+                '%d.%m.%Y %H:%M:%S'
+            )
+    return JsonResponse(json.dumps(res), safe=False)
 
