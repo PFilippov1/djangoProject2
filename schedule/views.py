@@ -2,7 +2,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import JsonResponse
 import json
-
+from .models import Mark
 from .models import Schedule, Option
 
 
@@ -48,7 +48,7 @@ def detail(request, schedule_id):
         request,
         "answer.html",
         {
-            "riddle": get_object_or_404(
+            "schedule": get_object_or_404(
                 Schedule, pk=schedule_id),
             "error_message": error_message,
             "latest_messages":
@@ -221,4 +221,63 @@ def msg_list(request, schedule_id):
                 '%d.%m.%Y %H:%M:%S'
             )
     return JsonResponse(json.dumps(res), safe=False)
+
+
+# сообщения
+
+
+def post_mark(request, schedule_id):
+    msg = Mark()
+    msg.author = request.user
+    msg.schedule = get_object_or_404(Schedule, pk=schedule_id)
+    msg.mark = request.POST['mark']
+    msg.pub_date = datetime.now()
+    msg.save()
+    return HttpResponseRedirect(app_url + str(schedule_id))
+
+
+# оценки
+from .models import Mark
+# вычисление среднего,
+# например, средней оценки
+from django.db.models import Avg
+
+
+# страница загадки со списком ответов
+def detail(request, schedule_id):
+    error_message = None
+    if "error_message" in request.GET:
+        error_message = request.GET["error_message"]
+    return render(
+        request,
+        "answer.html",
+        {
+            "schedule": get_object_or_404(
+                Schedule, pk=schedule_id),
+            "error_message": error_message,
+            "latest_messages":
+                Message.objects
+                    .filter(chat_id=schedule_id)
+                    .order_by('-pub_date')[:5],
+            # кол-во оценок, выставленных пользователем
+            "already_rated_by_user":
+                Mark.objects
+                    .filter(author_id=request.user.id)
+                    .filter(schedule_id=schedule_id)
+                    .count(),
+            # оценка текущего пользователя
+            "user_rating":
+                Mark.objects
+                    .filter(author_id=request.user.id)
+                    .filter(schedule_id=schedule_id)
+                    .aggregate(Avg('mark'))
+                ["mark__avg"],
+            # средняя по всем пользователям оценка
+            "avg_mark":
+                Mark.objects
+                    .filter(schedule_id=schedule_id)
+                    .aggregate(Avg('mark'))
+                ["mark__avg"]
+        }
+    )
 

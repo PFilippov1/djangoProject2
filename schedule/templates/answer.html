@@ -21,6 +21,58 @@
 
 
     <hr>
+    <h4>Rating</h4>
+    <p>Average rating:
+        <span id="avg_mark_span">
+            {{ avg_mark }}
+        </span>
+    </p>
+    {% if user.is_authenticated %}
+        {% if already_rated_by_user <= 0 or already_rated_by_user ==  None %}
+            <form action="post_mark/" method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-sm text-center">
+                        <input name="mark"
+                               type="radio"
+                               value="1"/> 1
+                    </div>
+                    <div class="col-sm text-center">
+                        <input name="mark"
+                               type="radio"
+                               value="2"/> 2
+                    </div>
+                    <div class="col-sm text-center">
+                        <input name="mark"
+                               type="radio"
+                               value="3"/> 3
+                    </div>
+                    <div class="col-sm text-center">
+                        <input name="mark"
+                               type="radio"
+                               value="4"/> 4
+                    </div>
+                    <div class="col-sm text-center">
+                        <input name="mark"
+                               type="radio"
+                               value="5"/> 5
+                    </div>
+                    <div class="col-sm text-center">
+                        <input class="btn btn-success"
+                               type="submit"
+                               value="Send mark"/>
+                    </div>
+                </div>
+            </form>
+        {% else %}
+            Your rating: {{ user_rating }}
+        {% endif %}
+
+    {% endif %}
+    <hr>
+
+
+    <hr>
     <h4>Chat</h4>
     {% if user.is_authenticated %}
         <form action="post/" method="post">
