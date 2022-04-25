@@ -21,4 +21,5 @@ urlpatterns = [
     re_path(r'schedule/', include('schedule.urls')),
     re_path(r'admin/', admin.site.urls),
 
+
 ]

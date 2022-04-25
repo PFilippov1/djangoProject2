@@ -278,6 +278,16 @@ def detail(request, schedule_id):
                     .filter(schedule_id=schedule_id)
                     .aggregate(Avg('mark'))
                 ["mark__avg"]
+
         }
+
     )
+
+def get_mark(request, schedule_id):
+    res = Mark.objects\
+            .filter(schedule_id=schedule_id)\
+            .aggregate(Avg('mark'))
+
+    return JsonResponse(json.dumps(res), safe=False)
+
 

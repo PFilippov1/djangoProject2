@@ -32,7 +32,20 @@ urlpatterns = [
 
     # отправка оценки
     re_path(r'^([0-9]+)/post_mark/$',
-        views.post_mark,
-        name='post_mark'),
+            views.post_mark,
+            name='post_mark'),
+
+    re_path(r'^$', views.index, name='index'),
+    re_path(r'^([0-9]+)/$', views.detail, name='detail'),
+    re_path(r'^([0-9]+)/answer/$', views.answer, name='answer'),
+
+    # отправка оценки
+    re_path(r'^([0-9]+)/post_mark/$',
+            views.post_mark,
+            name='post_mark'),
+    # средняя оценка
+    re_path(r'^([0-9]+)/get_mark/$',
+            views.get_mark,
+            name='get_mark'),
 
 ]
